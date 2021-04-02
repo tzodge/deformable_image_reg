@@ -2,6 +2,8 @@
 Get data and weights from [Link](https://drive.google.com/drive/folders/1QtQcDh7bAlyAtDDrYeJ2F5iDKjAvJXYg?usp=sharing)
 
 And put them in file structure as follows 
+
+
 ![File structure](./file_structure.png)
 
 Run
