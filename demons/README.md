@@ -11,5 +11,3 @@ To demo the code, run the following command (in a terminal)
 
     python plot_demons.py -fixed=<path_to_image1> -moving=<path_to_image2>
 
-
-Get data and weights from [Link](https://drive.google.com/drive/folders/1QtQcDh7bAlyAtDDrYeJ2F5iDKjAvJXYg?usp=sharing)
