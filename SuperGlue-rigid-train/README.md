@@ -2,6 +2,11 @@
 ## Acknowledgement 
 Most of the parts in this repo are developed on top of [skylook's](https://github.com/skylook/SuperGlue) and [HeatherJiaZG's](https://github.com/HeatherJiaZG/SuperGlue-pytorch) superglue imeplementations.  	
 
+On top of Skylook and Heather's code, our implementation has the additional functionalities such as 
+* Batch processing
+* Large initial misalignment in dataloaders
+* Dealing with outliers as mentioned in [SuperGlue: Learning Feature Matching with Graph Neural Networks](https://arxiv.org/abs/1911.11763)
+
 ## Caution
 I am not the author of this repo, and this repo is still under development.
 
