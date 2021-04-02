@@ -7,4 +7,4 @@ Example
 =======
 To demo the code, run the following command (in a terminal)
 
-    python plot_demons.py
+    python plot_demons.py -fixed=<path_to_image1> -moving=<path_to_image2>
