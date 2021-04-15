@@ -23,8 +23,8 @@ def imagepad(im, scale=2.):
     after = after.astype(np.int64)
 
     # pad_width = zip( )
-    pad_width = zip(before, after)
-    lim = zip(before, before + shape)
+    pad_width = list(zip(before, after))
+    lim = list(zip(before, before + shape))
     # import ipdb; ipdb.set_trace()
     return np.pad(im, pad_width, mode="constant"), lim
 
@@ -104,7 +104,7 @@ def expfield(vx, vy):
     p = 2. ** n
     vx /= p
     vy /= p
-    for _ in xrange(n):
+    for _ in range(n):
         vx, vy = compose(vx, vy, vx, vy)
     return vx, vy
 
@@ -244,7 +244,7 @@ def register(fixed, moving, symmetric=True, sigma_fluid=1., sigma_diffusion=1.,
     e = np.inf
     e_min = e
     energies = []
-    for k in xrange(niter):
+    for k in range(niter):
         # find demons force field update and then smooth
         ux_forw, uy_forw = findupdate(fixed, moving, vx, vy, sigma_i, sigma_x)
         if not symmetric:
@@ -276,7 +276,7 @@ def register(fixed, moving, symmetric=True, sigma_fluid=1., sigma_diffusion=1.,
             sy_min = sy
 
         # invoke callback
-        print ("Iter %03i/%03i: energy=%g" % (k + 1, niter, e))
+        print(("Iter %03i/%03i: energy=%g" % (k + 1, niter, e)))
         if callback and k % 10 == 0:
             variables = locals()
             # variables["fixed"] = orig_fixed
