@@ -45,6 +45,7 @@ def run_demons(moving, fixed, **kwargs):
     # plt.show()
 
     def _callback(variables):
+
         global diff_save, count
         warped = variables["warped"]
         fixed = variables['fixed']
@@ -62,6 +63,129 @@ def run_demons(moving, fixed, **kwargs):
     # return demons.demons(fixed, moving, callback=_callback, **kwargs)
     # return demons(fixed, moving, callback=_callback, **kwargs)
     demons.demons(fixed, moving, callback=_callback, **kwargs)
+
+def mask_cv2_img(img, idx_2d,c='r'):
+    r_chan = img[:,:,2]
+    g_chan = img[:,:,1]
+    b_chan = img[:,:,0]
+
+    if c=='r':
+        r_chan[idx_2d] = 255
+    else:
+        r_chan[idx_2d] = 0
+
+    if c=='g':
+        g_chan[idx_2d] = 255
+    else:
+        g_chan[idx_2d] = 0
+
+    if c=='b':
+        b_chan[idx_2d] = 255
+    else:
+        b_chan[idx_2d] = 0
+
+    return np.dstack((b_chan,g_chan,r_chan))
+
+def mask_cv2_img_by_arr(img, idx_2d,c=[255,0,0]):
+    img  = img.copy()
+    r_chan = img[:,:,2]
+    g_chan = img[:,:,1]
+    b_chan = img[:,:,0]
+
+    r_chan[idx_2d] = c[2]
+    g_chan[idx_2d] = c[1]
+    b_chan[idx_2d] = c[0]
+    return np.dstack((b_chan,g_chan,r_chan))
+
+def remove_noise(img, ksize=2):
+    kernel = np.ones((ksize,ksize),np.uint8)
+    opening = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
+    return opening
+
+def save_and_disp(img, disp_name='disp_name'):
+    cv2.imwrite('./results/'+'{}.png'.format(disp_name),img)
+    cv2.namedWindow(disp_name, cv2.WINDOW_NORMAL)
+    cv2.imshow(disp_name,img); 
+    cv2.waitKey(0)
+    
+
+
+
+
+
+def get_demons_warp(moving, fixed):
+    sx, sy, vx, vy = demons.demons(fixed, moving)
+    warped = demons.iminterpolate(moving, sx=sx, sy=sy)
+    from IPython import embed
+
+    embed()
+    thresh = 18
+    # remove_noise_ksize = 1
+
+    fixed_float = fixed.astype(np.float32)
+    moving_float = moving.astype(np.float32)
+    warped_float = warped.astype(np.float32)
+ 
+    total_diff = abs(fixed_float-moving_float)  ## total difference
+    changed_pix = abs(fixed_float-warped_float)  ## pixel change
+    displaced_pix = abs(total_diff-changed_pix)  ## only displacement
+
+    total_diff_thresh = cv2.threshold(total_diff,thresh,255, cv2.THRESH_BINARY)[1]
+    changed_pix_thresh = cv2.threshold(changed_pix,thresh,255, cv2.THRESH_BINARY)[1]
+    displaced_pix_thresh = cv2.threshold(displaced_pix,thresh,255, cv2.THRESH_BINARY)[1]
+
+    changed_pix_thresh = remove_noise(changed_pix_thresh,ksize=2)
+    # displaced_pix_thresh = remove_noise(displaced_pix_thresh,ksize=1)
+
+    ## Total difference
+    fixed_color = np.dstack((fixed,fixed,fixed))
+    totalDiff_img = mask_cv2_img_by_arr(fixed_color,np.where(total_diff_thresh), c=[0,255,0])
+    save_and_disp(totalDiff_img,'totalDiff_img')
+
+
+
+    # wind_name_totalDiff = "totalDiff_img"
+    # cv2.imwrite('./results/'+'{}.png'.format(wind_name_totalDiff),totalDiff_img)
+    # cv2.namedWindow(wind_name_totalDiff, cv2.WINDOW_NORMAL)
+    # cv2.imshow(wind_name_totalDiff,totalDiff_img); 
+    # cv2.waitKey(0)
+
+
+
+
+    ## Disentangled difference
+    fixed_color = np.dstack((fixed,fixed,fixed))
+    displacement_img = mask_cv2_img_by_arr(fixed_color,np.where(displaced_pix_thresh), c=[0,255,255])
+    disentangled_img = mask_cv2_img_by_arr(displacement_img,np.where(changed_pix_thresh), c=[0,0,255])
+
+    save_and_disp(disentangled_img,'disentangled_img')
+    # wind_name_disentangled = "disentangled_img"
+    # cv2.imwrite('./results/'+'{}.png'.format(wind_name_disentangled),disentangled_img)
+
+    # cv2.namedWindow(wind_name_disentangled, cv2.WINDOW_NORMAL)
+    # cv2.imshow(wind_name_disentangled,disentangled_img); 
+    # cv2.waitKey(0)
+
+
+    # plt.figure()
+    # plt.title('fixed - moving (total difference)')
+    # plt.imshow( cv2.threshold(total_diff,thresh,255, cv2.THRESH_BINARY)[1] ,cmap='gray',vmin=0,vmax=255)
+
+    # plt.figure()
+    # plt.title('fixed - warped (total change)')
+    # plt.imshow( cv2.threshold(changed_pix,thresh,255, cv2.THRESH_BINARY)[1] ,cmap='gray',vmin=0,vmax=255)
+
+    # plt.figure()
+    # plt.title('displaced components')
+    # plt.imshow( displaced_pix_thresh,cmap='gray',vmin=0,vmax=255)
+
+    # plt.show()
+
+
+    # plt.imshow(fixed_float,cmap='gray')
+    # plt.imshow(changed_pix_thresh, cmap='cividis',alpha=0.5)
+    # plt.imshow(displaced_pix_thresh, cmap='jet',alpha=0.5)
+    # plt.show()
 
 if __name__ == "__main__":
     # load data
@@ -85,4 +209,5 @@ if __name__ == "__main__":
     fixed = cv2.imread(args.fixed_path, 0)
     moving = cv2.imread(args.moving_path, 0)
 
-    run_demons(moving, fixed)
+    # run_demons(moving, fixed)
+    get_demons_warp(moving, fixed)

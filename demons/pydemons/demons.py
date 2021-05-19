@@ -354,4 +354,5 @@ def demons(fixed, moving, nlevel=3, symmetric=True, sigma_fluid=1.,
         scale *= 2.
 
     sx, sy = expfield(vx, vy)
+
     return sx, sy, vx, vy
