@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from pydemons import demons
+import sys
+sys.path.append('./pydemons')
+import demons
 import argparse
 import cv2
 
@@ -58,8 +60,8 @@ def run_demons(moving, fixed, **kwargs):
         cv2.imwrite("./diff_image_demons.png",diff_save)
 
     # return demons.demons(fixed, moving, callback=_callback, **kwargs)
-    return demons(fixed, moving, callback=_callback, **kwargs)
-    # demons.demons(fixed, moving, callback=_callback, **kwargs)
+    # return demons(fixed, moving, callback=_callback, **kwargs)
+    demons.demons(fixed, moving, callback=_callback, **kwargs)
 
 if __name__ == "__main__":
     # load data
