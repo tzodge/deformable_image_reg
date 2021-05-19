@@ -218,12 +218,31 @@ class SuperGlue(nn.Module):
         bin_score = torch.nn.Parameter(torch.tensor(1.))
         self.register_parameter('bin_score', bin_score)
 
-        assert self.config['weights'] in ['indoor', 'outdoor']
-        path = Path(__file__).parent
-        path = path / 'weights/superglue_{}.pth'.format(self.config['weights'])
-        self.load_state_dict(torch.load(str(path)))
-        print('Loaded SuperGlue model (\"{}\" weights)'.format(
-            self.config['weights']))
+        try:  
+            '''
+            original superglue implementation
+            '''
+            assert self.config['weights'] in ['indoor', 'outdoor']
+            path = Path(__file__).parent
+            path = path / 'weights/superglue_{}.pth'.format(self.config['weights'])
+            self.load_state_dict(torch.load(str(path)))
+            print('Loaded SuperGlue model (\"{}\" weights)'.format(
+                self.config['weights']))
+        except:
+            '''
+            Trying to load superglue weights/model
+            '''
+            path_alternate = config['weights_path']
+            model = torch.load(path_alternate)
+            print ("did not load default indoor/outdoor superglue weights")
+
+            print ("Trying to load weights from model at alternate path:\n {} \n\n".format( path_alternate))
+            try:
+                self.load_state_dict(model.state_dict())
+            except:
+                self.load_state_dict(torch.load(str(path_alternate)))
+
+            print ("Yayy successfully loaded those weights")
 
     def forward(self, data):
         """Run SuperGlue on a pair of keypoints and descriptors"""

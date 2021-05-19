@@ -5,6 +5,7 @@ sys.path.append('./pydemons')
 import demons
 import argparse
 import cv2
+import os
 
 
 diff_save = 0 
@@ -103,10 +104,11 @@ def remove_noise(img, ksize=2):
     return opening
 
 def save_and_disp(img, disp_name='disp_name'):
+    if not os.path.exists('./results'):
+        os.mkdir('./results')
     cv2.imwrite('./results/'+'{}.png'.format(disp_name),img)
     cv2.namedWindow(disp_name, cv2.WINDOW_NORMAL)
     cv2.imshow(disp_name,img); 
-    cv2.waitKey(0)
     
 
 
@@ -118,7 +120,7 @@ def get_demons_warp(moving, fixed):
     warped = demons.iminterpolate(moving, sx=sx, sy=sy)
     from IPython import embed
 
-    embed()
+    # embed()
     thresh = 18
     # remove_noise_ksize = 1
 
@@ -142,50 +144,14 @@ def get_demons_warp(moving, fixed):
     totalDiff_img = mask_cv2_img_by_arr(fixed_color,np.where(total_diff_thresh), c=[0,255,0])
     save_and_disp(totalDiff_img,'totalDiff_img')
 
-
-
-    # wind_name_totalDiff = "totalDiff_img"
-    # cv2.imwrite('./results/'+'{}.png'.format(wind_name_totalDiff),totalDiff_img)
-    # cv2.namedWindow(wind_name_totalDiff, cv2.WINDOW_NORMAL)
-    # cv2.imshow(wind_name_totalDiff,totalDiff_img); 
-    # cv2.waitKey(0)
-
-
-
-
     ## Disentangled difference
     fixed_color = np.dstack((fixed,fixed,fixed))
     displacement_img = mask_cv2_img_by_arr(fixed_color,np.where(displaced_pix_thresh), c=[0,255,255])
     disentangled_img = mask_cv2_img_by_arr(displacement_img,np.where(changed_pix_thresh), c=[0,0,255])
 
     save_and_disp(disentangled_img,'disentangled_img')
-    # wind_name_disentangled = "disentangled_img"
-    # cv2.imwrite('./results/'+'{}.png'.format(wind_name_disentangled),disentangled_img)
-
-    # cv2.namedWindow(wind_name_disentangled, cv2.WINDOW_NORMAL)
-    # cv2.imshow(wind_name_disentangled,disentangled_img); 
-    # cv2.waitKey(0)
-
-
-    # plt.figure()
-    # plt.title('fixed - moving (total difference)')
-    # plt.imshow( cv2.threshold(total_diff,thresh,255, cv2.THRESH_BINARY)[1] ,cmap='gray',vmin=0,vmax=255)
-
-    # plt.figure()
-    # plt.title('fixed - warped (total change)')
-    # plt.imshow( cv2.threshold(changed_pix,thresh,255, cv2.THRESH_BINARY)[1] ,cmap='gray',vmin=0,vmax=255)
-
-    # plt.figure()
-    # plt.title('displaced components')
-    # plt.imshow( displaced_pix_thresh,cmap='gray',vmin=0,vmax=255)
-
-    # plt.show()
-
-
-    # plt.imshow(fixed_float,cmap='gray')
-    # plt.imshow(changed_pix_thresh, cmap='cividis',alpha=0.5)
-    # plt.imshow(displaced_pix_thresh, cmap='jet',alpha=0.5)
-    # plt.show()
+ 
+    cv2.waitKey(0)
 
 if __name__ == "__main__":
     # load data
@@ -197,6 +163,7 @@ if __name__ == "__main__":
    
 
     parser.add_argument('-fixed', '--fixed_path',
+                        # type=str, default='../data/pydemons_data/lenag2.png',
                         type=str, default='../data/pydemons_data/lenag2.png',
                         help='fixed Image')
     parser.add_argument('-moving', '--moving_path',

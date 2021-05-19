@@ -11,3 +11,7 @@ To demo the code, run the following command (in a terminal)
 
     python plot_demons.py -fixed=<path_to_image1> -moving=<path_to_image2>
 
+To replicate 19th May, 2021 slides results
+```
+python plot_demons.py -fixed=./data/autocropped_unit10.jpg -moving=./data/man_cropped_unit11.jpg
+```
